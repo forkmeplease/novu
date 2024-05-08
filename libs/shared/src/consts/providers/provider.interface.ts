@@ -1,8 +1,9 @@
-import { ChannelTypeEnum } from '../../entities/message-template';
-import { CredentialsKeyEnum } from './provider.enum';
+import { CredentialsKeyEnum, ProvidersIdEnum } from './provider.enum';
+
+import { ChannelTypeEnum } from '../../types';
 
 export interface IProviderConfig {
-  id: string;
+  id: ProvidersIdEnum;
   displayName: string;
   channel: ChannelTypeEnum;
   credentials: IConfigCredentials[];
@@ -14,11 +15,19 @@ export interface IProviderConfig {
 
 export interface IConfigCredentials {
   key: CredentialsKeyEnum;
-  value?: string;
+  value?: unknown;
   displayName: string;
   description?: string;
   type: string;
   required: boolean;
+  tooltip?: {
+    text: string;
+    when?: boolean;
+  };
+  dropdown?: Array<{
+    name: string;
+    value: string | null;
+  }>;
 }
 
 export interface ILogoFileName {

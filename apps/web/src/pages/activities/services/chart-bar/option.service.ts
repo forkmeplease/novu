@@ -10,6 +10,14 @@ export function getOptions(this: any, isTriggerSent: boolean, daysCount: number)
       display: false,
     },
 
+    onHover: (event, el) => {
+      if (el.length > 0) {
+        event.native.target.style.cursor = 'pointer';
+      } else {
+        event.native.target.style.cursor = 'default';
+      }
+    },
+
     scales: getScalesConfiguration.call(this, daysCount),
 
     plugins: {
@@ -75,6 +83,7 @@ function getTooltipConfiguration() {
         tooltipEl.id = 'chartjs-tooltip';
         tooltipEl.innerHTML = '<table></table>';
         document.body.appendChild(tooltipEl);
+        tooltipEl.style.position = 'absolute';
       }
 
       // Hide if no tooltip
@@ -132,7 +141,7 @@ function buildBody(html: string, bodyLines) {
 
   resHtml += '<div class="tooltip-body">';
   bodyLines.forEach(function (body) {
-    const bodyText = getBodyText(body);
+    const bodyText: string | string[] = getBodyText(body) || '';
 
     resHtml += `<span >${bodyText} Total</span>`;
   });
@@ -154,7 +163,7 @@ function updateToolTipStyles(context, tooltipEl: HTMLElement, tooltipModel) {
 
   /* eslint-disable no-param-reassign */
   tooltipEl.style.opacity = '1';
-  tooltipEl.style.left = `${position.left + window.scrollX + tooltipModel.caretX - tooltipModel.width - 40}px`;
+  tooltipEl.style.left = `${position.left + window.scrollX + tooltipModel.caretX - tooltipModel.width - 30}px`;
   tooltipEl.style.top = `${position.top + window.scrollY + tooltipModel.caretY - tooltipModel.height - 30}px`;
   /* eslint-enable no-param-reassign */
 }
@@ -171,11 +180,11 @@ function getBodyText(body: string[]): string | string[] {
 }
 
 function buildDisplayTitle(title) {
-  const dayMonth = title.split(',')[1].split('/');
+  const dayMonth = title.split(' ')[1].split('/');
   const dateString = `${normalizeDateNumber(dayMonth[1])}-${normalizeDateNumber(dayMonth[0])}`;
   const data = parse(dateString, 'MM-dd', new Date());
 
-  return `${format(data, 'EEEE')}, ${format(data, 'LLLL')} ${format(data, 'Do')}`;
+  return `${format(data, 'EEEE')}, ${format(data, 'LLLL')} ${format(data, 'do')}`;
 }
 
 export function normalizeDateNumber(num: string): string {

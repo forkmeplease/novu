@@ -1,5 +1,13 @@
 import { IsDefined, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { StepTypeEnum, IEmailBlock, ITemplateVariable, IMessageCTA } from '@novu/shared';
+import {
+  StepTypeEnum,
+  IEmailBlock,
+  ITemplateVariable,
+  IMessageCTA,
+  ActorTypeEnum,
+  MessageTemplateContentType,
+  IActor,
+} from '@novu/shared';
 
 export class MessageTemplate {
   @IsOptional()
@@ -13,7 +21,7 @@ export class MessageTemplate {
   content: string | IEmailBlock[];
 
   @IsOptional()
-  contentType?: 'editor' | 'customHtml';
+  contentType?: MessageTemplateContentType;
 
   @IsOptional()
   @ValidateNested()
@@ -22,6 +30,9 @@ export class MessageTemplate {
   @IsOptional()
   @IsString()
   feedId?: string;
+
+  @IsOptional()
+  layoutId?: string | null;
 
   @IsOptional()
   @IsString()
@@ -34,4 +45,18 @@ export class MessageTemplate {
   @IsOptional()
   @IsString()
   title?: string;
+
+  @IsOptional()
+  @IsString()
+  preheader?: string;
+
+  @IsOptional()
+  @IsString()
+  senderName?: string;
+
+  @IsOptional()
+  actor?: IActor;
+
+  @IsOptional()
+  _creatorId?: string;
 }

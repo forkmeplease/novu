@@ -1,6 +1,6 @@
 import { Group, Modal, useMantineTheme } from '@mantine/core';
-import { Button, colors, shadows, Title, Text } from '../../../../design-system';
-import { useEnvController } from '../../../../store/use-env-controller';
+import { Button, colors, shadows, Title, Text } from '@novu/design-system';
+import { useEnvController } from '../../../../hooks';
 
 export function ConfirmRegenerationModal({
   isOpen,
@@ -36,6 +36,7 @@ export function ConfirmRegenerationModal({
         shadow={theme.colorScheme === 'dark' ? shadows.dark : shadows.medium}
         radius="md"
         size="lg"
+        data-test-id="regenerate-api-key-modal"
         onClose={() => {
           cancelAction();
         }}
@@ -50,7 +51,7 @@ export function ConfirmRegenerationModal({
             <Button variant="outline" size="md" mt={30} onClick={() => cancelAction()}>
               No
             </Button>
-            <Button mt={30} size="md" onClick={() => confirmAction()}>
+            <Button mt={30} size="md" onClick={() => confirmAction()} data-test-id="regenerate-api-key-modal-button">
               Yes
             </Button>
           </Group>

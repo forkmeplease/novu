@@ -1,4 +1,5 @@
 import { ChatProviderIdEnum, PushProviderIdEnum } from '../../consts';
+import { SubscriberCustomData } from '../../types';
 
 export interface ISubscriber {
   _id?: string;
@@ -7,6 +8,7 @@ export interface ISubscriber {
   email: string;
   phone?: string;
   avatar?: string;
+  locale?: string;
   subscriberId: string;
   channels?: IChannelSettings[];
   _organizationId: string;
@@ -14,6 +16,7 @@ export interface ISubscriber {
   deleted: boolean;
   createdAt: string;
   updatedAt: string;
+  data?: SubscriberCustomData;
   __v?: number;
 }
 

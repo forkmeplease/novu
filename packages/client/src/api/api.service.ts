@@ -4,8 +4,16 @@ import {
   ButtonTypeEnum,
   MessageActionStatusEnum,
   IParamObject,
+  IPaginatedResponse,
 } from '@novu/shared';
-import { IStoreQuery, IUserPreferenceSettings } from '../index';
+import {
+  ITabCountQuery,
+  IStoreQuery,
+  IUserPreferenceSettings,
+  IUnseenCountQuery,
+  IUnreadCountQuery,
+  IUserGlobalPreferenceSettings,
+} from '../index';
 
 export class ApiService {
   private httpClient: HttpClient;
@@ -44,21 +52,65 @@ export class ApiService {
     );
   }
 
-  async markMessageAsSeen(messageId: string): Promise<any> {
-    return await this.httpClient.post(
-      `/widgets/messages/${messageId}/seen`,
-      {}
-    );
+  async markMessageAs(
+    messageId: string | string[],
+    mark: { seen?: boolean; read?: boolean }
+  ): Promise<any> {
+    const markPayload =
+      mark.seen === undefined && mark.read === undefined
+        ? { seen: true }
+        : mark;
+
+    return await this.httpClient.post(`/widgets/messages/markAs`, {
+      messageId,
+      mark: markPayload,
+    });
+  }
+
+  async removeMessage(messageId: string): Promise<any> {
+    return await this.httpClient.delete(`/widgets/messages/${messageId}`, {});
+  }
+
+  async removeMessages(messageIds: string[]): Promise<any> {
+    return await this.httpClient.post(`/widgets/messages/bulk/delete`, {
+      messageIds: messageIds,
+    });
+  }
+
+  async removeAllMessages(feedId?: string): Promise<any> {
+    const url = feedId
+      ? `/widgets/messages?feedId=${feedId}`
+      : `/widgets/messages`;
+
+    return await this.httpClient.delete(url);
+  }
+
+  async markAllMessagesAsRead(feedId?: string | string[]): Promise<any> {
+    return await this.httpClient.post(`/widgets/messages/read`, {
+      feedId,
+    });
+  }
+
+  async markAllMessagesAsSeen(feedId?: string | string[]): Promise<any> {
+    return await this.httpClient.post(`/widgets/messages/seen`, {
+      feedId,
+    });
   }
 
   async getNotificationsList(
     page: number,
-    query: IStoreQuery = {}
-  ): Promise<IMessage[]> {
-    return await this.httpClient.get(`/widgets/notifications/feed`, {
-      page,
-      ...query,
-    });
+    { payload, ...rest }: IStoreQuery = {}
+  ): Promise<IPaginatedResponse<IMessage>> {
+    const payloadString = payload ? btoa(JSON.stringify(payload)) : undefined;
+
+    return await this.httpClient.getFullResponse(
+      `/widgets/notifications/feed`,
+      {
+        page,
+        payload: payloadString,
+        ...rest,
+      }
+    );
   }
 
   async initializeSession(
@@ -83,9 +135,23 @@ export class ApiService {
     });
   }
 
-  async getUnseenCount(query: IStoreQuery = {}) {
+  async getUnseenCount(query: IUnseenCountQuery = {}) {
     return await this.httpClient.get(
       '/widgets/notifications/unseen',
+      query as unknown as IParamObject
+    );
+  }
+
+  async getUnreadCount(query: IUnreadCountQuery = {}) {
+    return await this.httpClient.get(
+      '/widgets/notifications/unread',
+      query as unknown as IParamObject
+    );
+  }
+
+  async getTabCount(query: ITabCountQuery = {}) {
+    return await this.httpClient.get(
+      '/widgets/notifications/count',
       query as unknown as IParamObject
     );
   }
@@ -98,6 +164,10 @@ export class ApiService {
     return this.httpClient.get('/widgets/preferences');
   }
 
+  async getUserGlobalPreference(): Promise<IUserGlobalPreferenceSettings[]> {
+    return this.httpClient.get('/widgets/preferences/global');
+  }
+
   async updateSubscriberPreference(
     templateId: string,
     channelType: string,
@@ -105,6 +175,19 @@ export class ApiService {
   ): Promise<IUserPreferenceSettings> {
     return await this.httpClient.patch(`/widgets/preferences/${templateId}`, {
       channel: { type: channelType, enabled },
+    });
+  }
+
+  async updateSubscriberGlobalPreference(
+    preferences: { channelType: string; enabled: boolean }[],
+    enabled?: boolean
+  ): Promise<IUserPreferenceSettings> {
+    return await this.httpClient.patch(`/widgets/preferences`, {
+      preferences: preferences.map((preference) => ({
+        ...preference,
+        type: preference.channelType,
+      })),
+      enabled,
     });
   }
 }

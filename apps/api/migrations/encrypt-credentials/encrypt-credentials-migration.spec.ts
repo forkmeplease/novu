@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { encryptOldCredentialsMigration } from './encrypt-credentials-migration';
-import { UserSession } from '@novu/testing/src';
+import { UserSession } from '@novu/testing';
 import { ChannelTypeEnum } from '@novu/stateless';
-import { IntegrationRepository } from '@novu/dal/src';
+import { IntegrationRepository } from '@novu/dal';
 
 describe('Encrypt Old Credentials', function () {
   let session: UserSession;
@@ -51,13 +51,13 @@ describe('Encrypt Old Credentials', function () {
       });
     }
 
-    const newIntegration = await integrationRepository.find({});
+    const newIntegration = await integrationRepository.find({} as any);
 
     expect(newIntegration.length).to.equal(2);
 
     await encryptOldCredentialsMigration();
 
-    const encryptIntegration = await integrationRepository.find({});
+    const encryptIntegration = await integrationRepository.find({} as any);
 
     for (const integrationKey in encryptIntegration) {
       const integration = encryptIntegration[integrationKey];
